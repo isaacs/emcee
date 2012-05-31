@@ -1,12 +1,20 @@
 module.exports = exports = MC
 
 function MC () {
-  this._loading = 0
+  this.loading = 0
   this.models = {}
+  this.ondone = function () {}
 }
 
 var modelLoaders = {}
 MC.model = function (name, loader) {
+  if (MC.prototype.hasOwnProperty(name) ||
+      name === 'loading' ||
+      name === 'ondone' ||
+      name === 'error' ||
+      name === 'models') {
+    throw new Error('invalid model name: ' + name)
+  }
   modelLoaders[name] = loader
   return MC
 }
@@ -21,15 +29,15 @@ MC.prototype.load = function (name) {
     a[i-1] = arguments[i]
   }
   a[i-1] = next.bind(this)
-  this._loading ++
+  this.loading ++
   modelLoaders[name].apply(this, a)
   function next (er, data) {
     if (this.error) return
     this.error = er
-    this.models[name] = data
+    this[name] = this.models[name] = data
 
-    this._loading --
-    if (er || this._loading === 0) {
+    this.loading --
+    if ((er || this.loading === 0) && this.ondone) {
       this.ondone(this.error, this.models)
     }
   }
@@ -37,5 +45,7 @@ MC.prototype.load = function (name) {
 
 MC.prototype.end = function (cb) {
   this.ondone = cb
-  if (this._loading === 0) this.ondone(this.error, this.models)
+  if (this.loading === 0 || this.error) {
+    this.ondone(this.error, this.models)
+  }
 }
