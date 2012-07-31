@@ -50,3 +50,14 @@ tap.test('multiple', function (t) {
     t.end()
   })
 })
+
+tap.test('aliasing', function (t) {
+  var m = new MC()
+  m.load('file', __filename)
+  m.loadAs('file', 'otherfile', __filename)
+  m.end(function (er, models) {
+    if (er) throw er
+    t.same(models.file, models.otherfile)
+    t.end()
+  })
+})

@@ -27,8 +27,11 @@ http.createServer(function (req, res) {
   // check if the user is logged in.
   var m = new MC()
 
+  // modelname, args...
   m.load('login', req)
   m.load('bike', req.url, res)
+  // different kind of bike: modelname, alias, args...
+  m.loadAs('bike', 'motorbike', 'dirt', 'roads')
 
   m.end(function (er, models) {
     // either there is an error, or all models are loaded on the
@@ -39,5 +42,3 @@ http.createServer(function (req, res) {
   })
 }).listen(1337)
 ```
-
-
