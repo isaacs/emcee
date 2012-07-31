@@ -61,3 +61,17 @@ tap.test('aliasing', function (t) {
     t.end()
   })
 })
+
+tap.test('multiload', function (t) {
+  var m = new MC()
+  m.load('file', __filename)
+  m.end(function (er, models) {
+    if (er) throw er
+    m.loadAs('file', 'otherfile', __filename)
+    m.end(function (er, models) {
+      if (er) throw er
+      t.same(models.file, models.otherfile)
+      t.end()
+    })
+  })
+})
